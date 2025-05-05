@@ -7,7 +7,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuCheckboxItem
 } from "@/components/ui/dropdown-menu";
 import { MoonIcon, SunIcon, SunMoon } from "lucide-react";
