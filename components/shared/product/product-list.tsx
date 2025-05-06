@@ -20,5 +20,5 @@ export default function ProductList({ data, title, limit }: {
                 <p>No products found</p>
             )}
         </div>
-    )
+    );
 }
