@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-destructive: #ff0000;
 }
 
 @theme inline {
@@ -10,11 +11,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-destructive: var(--color-destructive);
 }
 
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
+  --color-destructive: #ff0000;
 }
 
 body {
