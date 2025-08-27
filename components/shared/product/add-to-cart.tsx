@@ -1,37 +1,86 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
-import { toast } from 'sonner';
-import { addItemToCart } from '@/lib/actions/cart.actions';
-import { CartItem } from '@/types';
+import { Plus, Minus, Loader } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { addItemToCart, removeItemFromCart } from '@/lib/actions/cart.actions';
+import { Cart, CartItem } from '@/types';
+import { useTransition } from 'react';
 
-const AddToCart = ({ item }: { item: CartItem; }) => {
+const AddToCart = ({ cart, item }: {
+  cart?: Cart;
+  item: Omit<CartItem, 'cartId'>;
+}) => {
+
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const { success, error } = useToast();
 
   const handleAddToCart = async () => {
-    // Execute the addItemToCart action
-    const res = await addItemToCart(item);
+    startTransition(async () => {
+      const res = await addItemToCart(item);
 
-    // Display appropriate toast message based on the result
-    if (!res?.success) {
-      toast.error(res?.message);
-      return;
-    }
+      // Display appropriate toast message based on the result
+      if (!res?.success) {
+        error(res?.message);
+        return;
+      }
 
-    toast.success(`${item.name} added to the cart`, {
-      action: {
-        label: 'Go to cart',
-        onClick: () => router.push('/cart'),
-      },
+      success(res?.message, {
+        action: {
+          label: 'Go to cart',
+          onClick: () => router.push('/cart'),
+        },
+      });
     });
   };
 
-  return (
-    <Button className='w-full' type='button' onClick={ handleAddToCart }>
-        <Plus /> Add To Cart
+  const handleRemoveFromCart = async () => {
+    startTransition(async () => {
+      const res = await removeItemFromCart(item.productId);
+
+      if (!res?.success) {
+        error(res?.message);
+        return;
+      }
+
+      success(res?.message);
+      return;
+    });
+  };
+
+  // Check if the item is already in the cart
+  const existItem =
+    cart && cart.items.find((x) => x.productId === item.productId);
+
+  return existItem ? (
+    <div>
+      <Button type='button' variant='outline' onClick={handleRemoveFromCart}>
+        {isPending ? (
+          <Loader className='w-4 h-4  animate-spin' />
+        ) : (
+          <Minus className='w-4 h-4' />
+        )}
+      </Button>
+      <span className='px-2'>{existItem.qty}</span>
+      <Button type='button' variant='outline' onClick={handleAddToCart}>
+        {isPending ? (
+          <Loader className='w-4 h-4  animate-spin' />
+        ) : (
+          <Plus className='w-4 h-4' />
+        )}
+      </Button>
+    </div>
+  ) : (
+    <Button className='w-full' type='button' onClick={handleAddToCart}>
+      {isPending ? (
+        <Loader className='w-4 h-4 animate-spin' />
+      ) : (
+        <Plus className='w-4 h-4' />
+      )}
+      Add to cart
     </Button>
-    );
+  );
 };
 
 export default AddToCart;
